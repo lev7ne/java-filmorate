@@ -1,5 +1,9 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.time.Duration;
 import java.time.LocalDate;
 
@@ -13,8 +17,10 @@ public class Film {
 //    продолжительность фильма — duration.
 
     private int id;
+    @NotBlank
+    @NotNull
     private String name;
     private String description;
     private LocalDate releaseDate;
-    private Duration duration;
+    private Integer duration;
 }
