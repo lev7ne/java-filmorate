@@ -21,14 +21,6 @@ public class FilmController {
     private final Map<Integer, Film> films = new HashMap<>();
     private final Counter counter = new Counter();
 
-    /*
-    Валидация:
-    - название не может быть пустым;
-    - максимальная длина описания — 200 символов;
-    - дата релиза — не раньше 28 декабря 1895 года;
-    - продолжительность фильма должна быть положительной.
-    */
-
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
         validate(film);

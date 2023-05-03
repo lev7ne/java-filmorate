@@ -9,13 +9,6 @@ import java.time.LocalDate;
 
 @lombok.Data
 public class User {
-
-//    целочисленный идентификатор — id;
-//    электронная почта — email;
-//    логин пользователя — login;
-//    имя для отображения — name;
-//    дата рождения — birthday.
-
     private Integer id;
     @Email
     private String email;
