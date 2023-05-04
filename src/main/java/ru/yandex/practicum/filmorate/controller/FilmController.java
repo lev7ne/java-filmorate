@@ -16,7 +16,7 @@ import java.util.*;
 @RequestMapping("/films")
 public class FilmController {
     private final Map<Integer, Film> films = new HashMap<>();
-    private final static LocalDate birthdayCinema = LocalDate.of(1895, 12, 28);
+    private static final LocalDate birthdayCinema = LocalDate.of(1895, 12, 28);
     private final Counter counter = new Counter();
 
     @PostMapping
