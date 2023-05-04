@@ -10,10 +10,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import javax.validation.Valid;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
+import java.util.*;
 
 
 @Slf4j
@@ -44,8 +41,8 @@ public class UserController {
     }
 
     @GetMapping
-    public Set<User> getUsers() {
-        return new HashSet<>(users.values());
+    public Collection<User> getUsers() {
+        return users.values();
     }
 
     private void validate(User user) {

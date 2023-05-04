@@ -9,10 +9,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @RestController
@@ -42,8 +39,8 @@ public class FilmController {
     }
 
     @GetMapping
-    public Set<Film> getFilms() {
-        return new HashSet<>(films.values());
+    public Collection<Film> getFilms() {
+        return films.values();
     }
 
     private void validate(Film film) {
