@@ -16,6 +16,7 @@ import java.util.*;
 @RequestMapping("/films")
 public class FilmController {
     private final Map<Integer, Film> films = new HashMap<>();
+    private final static LocalDate birthdayCinema = LocalDate.of(1895, 12, 28);
     private final Counter counter = new Counter();
 
     @PostMapping
@@ -44,15 +45,15 @@ public class FilmController {
     }
 
     private void validate(Film film) {
-        if (film.getDescription().length() >= 200) {
+        if (film.getDescription() != null && film.getDescription().length() >= 200) {
             log.warn("Длина описания более 200 символов.");
-            throw new ValidationException();
+            throw new ValidationException("Длина описания превышает 200 и равняется " + film.getDescription().length() + " символов.");
         }
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+        if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(birthdayCinema)) {
             log.warn("Добавить фильм выпущенный до 28.12.1895 - невозможно.");
-            throw new ValidationException();
+            throw new ValidationException("Дата релиза фильма " + film.getReleaseDate() + " раньше даты рождения кинематографа.");
         }
-        if (film.getDuration() <= 0) {
+        if (film.getDuration() != null && film.getDuration() <= 0) {
             log.warn("Продолжительность фильма не может быть отрицательной.");
             throw new ValidationException();
         }

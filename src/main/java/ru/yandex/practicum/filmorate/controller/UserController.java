@@ -48,13 +48,14 @@ public class UserController {
     private void validate(User user) {
         if (user.getLogin().contains(" ")) {
             log.warn("Попытка добавить пользователя с некорректным логином.");
-            throw new ValidationException();
+            throw new ValidationException("Логин " + user.getLogin() + " - некорректный.");
         }
         if (user.getBirthday().isAfter(LocalDate.now())) {
             log.warn("Попытка добавить пользователя с датой рождения в будущем.");
             throw new ValidationException();
         }
         if (user.getName() == null || user.getName().isBlank()) {
+            log.warn("Произошла замена name на login.");
             user.setName(user.getLogin());
         }
     }
