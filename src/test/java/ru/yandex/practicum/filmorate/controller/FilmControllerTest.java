@@ -21,7 +21,7 @@ public class FilmControllerTest {
                 .name("Титаник")
                 .description("Описание фильма")
                 .releaseDate(LocalDate.of(993, 12, 4))
-                .duration(120)
+                .duration((short) 120)
                 .build();
         ValidationException exception = Assertions.assertThrows(ValidationException.class, () -> fc.createFilm(film));
         assertEquals("Дата релиза фильма " + film.getReleaseDate() + " раньше даты рождения кинематографа.", exception.getMessage());
@@ -34,7 +34,7 @@ public class FilmControllerTest {
                 .name("Титаник")
                 .description("Описание фильма")
                 .releaseDate(LocalDate.of(1993, 12, 4))
-                .duration(180)
+                .duration((short) 180)
                 .build();
         fc.createFilm(film);
         assertEquals(fc.getFilms().size(), 1);

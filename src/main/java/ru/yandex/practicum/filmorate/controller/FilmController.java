@@ -45,17 +45,9 @@ public class FilmController {
     }
 
     private void validate(Film film) {
-        if (film.getDescription() != null && film.getDescription().length() >= 200) {
-            log.warn("Длина описания более 200 символов.");
-            throw new ValidationException("Длина описания превышает 200 и равняется " + film.getDescription().length() + " символов.");
-        }
-        if (film.getReleaseDate() != null && film.getReleaseDate().isBefore(birthdayCinema)) {
+        if (film.getReleaseDate().isBefore(birthdayCinema)) {
             log.warn("Добавить фильм выпущенный до 28.12.1895 - невозможно.");
             throw new ValidationException("Дата релиза фильма " + film.getReleaseDate() + " раньше даты рождения кинематографа.");
-        }
-        if (film.getDuration() != null && film.getDuration() <= 0) {
-            log.warn("Продолжительность фильма не может быть отрицательной.");
-            throw new ValidationException();
         }
     }
 }
