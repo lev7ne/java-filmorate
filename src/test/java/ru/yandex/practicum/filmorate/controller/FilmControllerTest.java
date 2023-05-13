@@ -5,6 +5,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 
 import java.time.LocalDate;
 
@@ -12,7 +15,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FilmControllerTest {
-    FilmController fc = new FilmController();
+    FilmStorage filmStorage = new InMemoryFilmStorage();
+    FilmService filmService = new FilmService(filmStorage);
+    FilmController filmController = new FilmController(filmService);
 
     @DisplayName("Проверка валидации фильма")
     @Test
@@ -23,7 +28,7 @@ public class FilmControllerTest {
                 .releaseDate(LocalDate.of(993, 12, 4))
                 .duration((short) 120)
                 .build();
-        ValidationException exception = Assertions.assertThrows(ValidationException.class, () -> fc.createFilm(film));
+        ValidationException exception = Assertions.assertThrows(ValidationException.class, () -> filmController.createFilm(film));
         assertEquals("Дата релиза фильма " + film.getReleaseDate() + " раньше даты рождения кинематографа.", exception.getMessage());
     }
 
@@ -36,8 +41,8 @@ public class FilmControllerTest {
                 .releaseDate(LocalDate.of(1993, 12, 4))
                 .duration((short) 180)
                 .build();
-        fc.createFilm(film);
-        assertEquals(fc.getFilms().size(), 1);
-        assertTrue(fc.getFilms().contains(film));
+        filmController.createFilm(film);
+        assertEquals(filmController.getFilms().size(), 1);
+        assertTrue(filmController.getFilms().contains(film));
     }
 }
