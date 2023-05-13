@@ -10,10 +10,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import javax.validation.Valid;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Set;
+import java.util.*;
 
 
 @Slf4j
@@ -44,20 +41,21 @@ public class UserController {
     }
 
     @GetMapping
-    public Set<User> getUsers() {
-        return new HashSet<>(users.values());
+    public Collection<User> getUsers() {
+        return users.values();
     }
 
     private void validate(User user) {
         if (user.getLogin().contains(" ")) {
             log.warn("Попытка добавить пользователя с некорректным логином.");
-            throw new ValidationException();
+            throw new ValidationException("Логин " + user.getLogin() + " - некорректный.");
         }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
+        if (user.getBirthday() != null && user.getBirthday().isAfter(LocalDate.now())) {
             log.warn("Попытка добавить пользователя с датой рождения в будущем.");
-            throw new ValidationException();
+            throw new ValidationException("Попытка добавить пользователя с датой рождения в будущем: " + user.getBirthday());
         }
         if (user.getName() == null || user.getName().isBlank()) {
+            log.warn("Имя пользователя подставлено из логина: {}", user.getLogin());
             user.setName(user.getLogin());
         }
     }

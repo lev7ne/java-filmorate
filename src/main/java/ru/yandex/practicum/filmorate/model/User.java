@@ -8,6 +8,9 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 @lombok.Data
+@lombok.Builder
+@lombok.NoArgsConstructor
+@lombok.AllArgsConstructor
 public class User {
     private Integer id;
     @Email
