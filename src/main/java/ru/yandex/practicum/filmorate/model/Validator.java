@@ -15,6 +15,7 @@ public class Validator {
             throw new ValidationException("Дата релиза фильма " + film.getReleaseDate() + " раньше даты рождения кинематографа.");
         }
     }
+
     public void validateUser(User user) {
         if (user.getLogin().contains(" ")) {
             log.warn("Попытка добавить пользователя с некорректным логином.");
