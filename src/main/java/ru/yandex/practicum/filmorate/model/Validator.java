@@ -15,4 +15,18 @@ public class Validator {
             throw new ValidationException("Дата релиза фильма " + film.getReleaseDate() + " раньше даты рождения кинематографа.");
         }
     }
+    public void validateUser(User user) {
+        if (user.getLogin().contains(" ")) {
+            log.warn("Попытка добавить пользователя с некорректным логином.");
+            throw new ValidationException("Логин " + user.getLogin() + " - некорректный.");
+        }
+        if (user.getBirthday() != null && user.getBirthday().isAfter(LocalDate.now())) {
+            log.warn("Попытка добавить пользователя с датой рождения в будущем.");
+            throw new ValidationException("Попытка добавить пользователя с датой рождения в будущем: " + user.getBirthday());
+        }
+        if (user.getName() == null || user.getName().isBlank()) {
+            log.warn("Имя пользователя подставлено из логина: {}", user.getLogin());
+            user.setName(user.getLogin());
+        }
+    }
 }

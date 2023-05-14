@@ -1,5 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
+import lombok.*;
+
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -9,10 +11,11 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
-@lombok.Data
-@lombok.Builder
-@lombok.NoArgsConstructor
-@lombok.AllArgsConstructor
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode
 public class Film {
     private int id;
     @NotBlank

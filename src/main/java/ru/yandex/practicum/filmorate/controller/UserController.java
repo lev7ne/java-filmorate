@@ -1,62 +1,62 @@
 package ru.yandex.practicum.filmorate.controller;
 
-
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.Counter;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-
-import java.time.LocalDate;
-import java.util.*;
-
+import java.util.Collection;
 
 @Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final Map<Integer, User> users = new HashMap<>();
-    private final Counter counter = new Counter();
+    private final UserService userService;
+
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
-        validate(user);
-        int id = counter.getId();
-        user.setId(id);
-        users.put(id, user);
-        return user;
+        return userService.createUser(user);
     }
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
-        if (!users.containsKey(user.getId())) {
-            log.warn("Попытка обновить пользователя с несуществующим id.");
-            throw new ValidationException();
-        }
-        validate(user);
-        users.put(user.getId(), user);
-        return user;
+        return userService.updateUser(user);
     }
 
+    @GetMapping ("/{id}")
+    public User getUserById(@PathVariable Integer id) {
+        return userService.getUserById(id);
+    }
+    
     @GetMapping
     public Collection<User> getUsers() {
-        return users.values();
+        return userService.getUsers();
     }
 
-    private void validate(User user) {
-        if (user.getLogin().contains(" ")) {
-            log.warn("Попытка добавить пользователя с некорректным логином.");
-            throw new ValidationException("Логин " + user.getLogin() + " - некорректный.");
-        }
-        if (user.getBirthday() != null && user.getBirthday().isAfter(LocalDate.now())) {
-            log.warn("Попытка добавить пользователя с датой рождения в будущем.");
-            throw new ValidationException("Попытка добавить пользователя с датой рождения в будущем: " + user.getBirthday());
-        }
-        if (user.getName() == null || user.getName().isBlank()) {
-            log.warn("Имя пользователя подставлено из логина: {}", user.getLogin());
-            user.setName(user.getLogin());
-        }
+    @PutMapping ("/{id}/friends/{friendId}")
+    public User addFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
+        return userService.addFriend(id, friendId);
+    }
+
+    @DeleteMapping ("/{id}/friends/{friendId}")
+    public User deleteFriend(@PathVariable Integer id, @PathVariable Integer friendId) {
+        return userService.deleteFriend(id, friendId);
+    }
+
+    @GetMapping ("/{id}/friends")
+    public Collection<User> getAllFriends (@PathVariable Integer id) {
+        return userService.getAllFriends(id);
+    }
+
+    @GetMapping ("/{id}/friends/common/{otherId}")
+    public Collection<User> getCommonFriendsList(@PathVariable Integer id, @PathVariable Integer otherId) {
+        return userService.getCommonFriends(id, otherId);
     }
 }

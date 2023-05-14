@@ -3,11 +3,13 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Counter;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.Validator;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -16,12 +18,14 @@ import java.util.stream.Collectors;
 @Service
 public class FilmService {
     FilmStorage filmStorage;
+    UserStorage userStorage;
     Validator validate = new Validator();
     Counter counter = new Counter();
 
     @Autowired
-    public FilmService(FilmStorage filmStorage) {
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
         this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
     }
 
     public Film createFilm(Film film) {
@@ -34,21 +38,30 @@ public class FilmService {
     public Film updateFilm(Film film) {
         if (filmStorage.getFilmById(film.getId()) == null) {
             log.warn("Попытка обновить фильм с несуществующим id.");
-            throw new ValidationException();
+            throw new NotFoundException();
         }
         validate.validateFilm(film);
         filmStorage.saveFilm(film);
         return film;
     }
+
+    public Film getFilmById(Integer id) {
+        if (filmStorage.getFilmById(id) == null) {
+            throw new NotFoundException();
+        }
+        return filmStorage.getFilmById(id);
+    }
+
     public Collection<Film> getFilms() {
         return filmStorage.getFilms();
     }
 
     public Film addLike(Integer filmId, Integer userId) {
         Film anyFilm = filmStorage.getFilmById(filmId);
-        if (anyFilm == null) {
-            log.warn("Попытка добавить лайк фильму с несуществующим id.");
-            throw new ValidationException();
+        User anyUser = userStorage.getUserById(userId);
+        if (anyFilm == null || anyUser == null) {
+            log.warn("Попытка поставить лайк фильму с несуществующим id или пользователь с таким id не существует.");
+            throw new NotFoundException();
         }
         anyFilm.getLikes().add(userId);
         filmStorage.saveFilm(anyFilm);
@@ -57,9 +70,10 @@ public class FilmService {
 
     public Film deleteLike(Integer filmId, Integer userId) {
         Film anyFilm = filmStorage.getFilmById(filmId);
-        if (anyFilm == null) {
-            log.warn("Попытка удалить лайк фильму с несуществующим id.");
-            throw new ValidationException();
+        User anyUser = userStorage.getUserById(userId);
+        if (anyFilm == null || anyUser == null) {
+            log.warn("Попытка удалить лайк фильму с несуществующим id или пользователь с таким id не существует.");
+            throw new NotFoundException();
         }
         anyFilm.getLikes().remove(userId);
         filmStorage.saveFilm(anyFilm);
@@ -70,16 +84,9 @@ public class FilmService {
         if (count == null) {
             count = 10;
         }
-        Set<Film> films = new TreeSet<>(
-                new Comparator<Film>() {
-                    @Override
-                    public int compare(Film o1, Film o2) {
-                        return Integer.compare(o2.getLikes().size(), o1.getLikes().size());
-                    }
-                }
-        );
-        films.addAll(filmStorage.getFilms());
-        //collect(Collectors.toCollection(() -> new TreeSet<>(Comparator.comparingInt(Player::getNumberOfWins))));
-        return films.stream().limit(count).collect(Collectors.toList());
+        return filmStorage.getFilms().stream()
+                .sorted((o1, o2) -> Integer.compare(o2.getLikes().size(), o1.getLikes().size()))
+                .limit(count)
+                .collect(Collectors.toList());
     }
 }
