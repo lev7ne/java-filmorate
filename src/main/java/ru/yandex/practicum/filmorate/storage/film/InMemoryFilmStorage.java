@@ -18,19 +18,20 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
-    private final Map<Integer, Film> films = new HashMap<>();
-    private final Validator validate = new Validator();
     private final Counter counter = new Counter();
+    private final Map<Integer, Film> films = new HashMap<>();
+    private final Validator validator;
     private final UserStorage userStorage;
 
     @Autowired
-    public InMemoryFilmStorage(UserStorage userStorage) {
+    public InMemoryFilmStorage(UserStorage userStorage, Validator validator) {
         this.userStorage = userStorage;
+        this.validator = validator;
     }
 
     @Override
     public Film createFilm(Film film) {
-        validate.validateFilm(film);
+        validator.validateFilm(film);
         int id = counter.getId();
         film.setId(id);
         films.put(id, film);
@@ -40,7 +41,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film updateFilm(Film film) {
         getFilmById(film.getId());
-        validate.validateFilm(film);
+        validator.validateFilm(film);
         films.put(film.getId(), film);
         return film;
     }

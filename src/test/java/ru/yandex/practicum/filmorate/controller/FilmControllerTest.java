@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Validator;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
@@ -17,8 +18,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FilmControllerTest {
-    UserStorage userStorage = new InMemoryUserStorage();
-    FilmStorage filmStorage = new InMemoryFilmStorage(userStorage);
+    Validator validator = new Validator();
+    UserStorage userStorage = new InMemoryUserStorage(validator);
+    FilmStorage filmStorage = new InMemoryFilmStorage(userStorage, validator);
     FilmService filmService = new FilmService(filmStorage);
     FilmController filmController = new FilmController(filmService);
 
