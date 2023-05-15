@@ -52,7 +52,7 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public Collection<Film> returnMostLikedFilms(@RequestParam(required = false) Integer count) {
+    public Collection<Film> returnMostLikedFilms(@RequestParam(defaultValue = "10") int count) {
         return filmService.returnMostLikedFilms(count);
     }
 }

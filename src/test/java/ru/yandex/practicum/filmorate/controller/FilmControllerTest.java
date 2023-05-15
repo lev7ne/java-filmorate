@@ -17,9 +17,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FilmControllerTest {
-    FilmStorage filmStorage = new InMemoryFilmStorage();
     UserStorage userStorage = new InMemoryUserStorage();
-    FilmService filmService = new FilmService(filmStorage, userStorage);
+    FilmStorage filmStorage = new InMemoryFilmStorage(userStorage);
+    FilmService filmService = new FilmService(filmStorage);
     FilmController filmController = new FilmController(filmService);
 
     @DisplayName("Проверка валидации фильма")
