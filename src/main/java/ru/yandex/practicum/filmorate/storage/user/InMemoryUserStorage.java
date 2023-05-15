@@ -53,48 +53,4 @@ public class InMemoryUserStorage implements UserStorage {
         }
         return anyUser;
     }
-
-    @Override
-    public User addFriend(Integer id, Integer friendId) {
-        User anyUser1 = getUserById(id);
-        User anyUser2 = getUserById(friendId);
-        anyUser1.getFriends().add(anyUser2.getId());
-        anyUser2.getFriends().add(anyUser1.getId());
-        users.put(id, anyUser1);
-        users.put(friendId, anyUser2);
-        return anyUser1;
-    }
-
-    @Override
-    public User deleteFriend(Integer id, Integer friendId) {
-        User anyUser1 = getUserById(id);
-        User anyUser2 = getUserById(friendId);
-        anyUser1.getFriends().remove(anyUser2.getId());
-        anyUser2.getFriends().remove(anyUser1.getId());
-        users.put(id, anyUser1);
-        users.put(friendId, anyUser2);
-        return anyUser1;
-    }
-
-    @Override
-    public Collection<User> getAllFriends(Integer id) {
-        User anyUser = getUserById(id);
-        List<User> userFriendsList = new ArrayList<>();
-        for (Integer elem : anyUser.getFriends()) {
-            userFriendsList.add(getUserById(elem));
-        }
-        return userFriendsList;
-    }
-
-    public Collection<User> getCommonFriends(Integer id, Integer otherId) {
-        User anyUser1 = getUserById(id);
-        User anyUser2 = getUserById(otherId);
-        List<User> userCommonFriendsList = new ArrayList<>();
-        for (Integer elem : anyUser1.getFriends()) {
-            if (anyUser2.getFriends().contains(elem)) {
-                userCommonFriendsList.add(getUserById(elem));
-            }
-        }
-        return userCommonFriendsList;
-    }
 }

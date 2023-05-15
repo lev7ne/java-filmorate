@@ -5,18 +5,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage) {
+    public FilmService(FilmStorage filmStorage, UserStorage userStorage) {
         this.filmStorage = filmStorage;
+        this.userStorage = userStorage;
     }
 
     public Film createFilm(Film film) {
@@ -36,14 +40,23 @@ public class FilmService {
     }
 
     public Film addLike(Integer filmId, Integer userId) {
-        return filmStorage.addLike(filmId, userId);
+        Film anyFilm = getFilmById(filmId);
+        userStorage.getUserById(userId);
+        anyFilm.getLikes().add(userId);
+        return filmStorage.updateFilm(anyFilm);
     }
 
     public Film deleteLike(Integer filmId, Integer userId) {
-        return filmStorage.deleteLike(filmId, userId);
+        Film anyFilm = getFilmById(filmId);
+        userStorage.getUserById(userId);
+        anyFilm.getLikes().remove(userId);
+        return filmStorage.updateFilm(anyFilm);
     }
 
     public List<Film> returnMostLikedFilms(int count) {
-        return filmStorage.returnMostLikedFilms(count);
+        return getFilms().stream()
+                .sorted((o1, o2) -> Integer.compare(o2.getLikes().size(), o1.getLikes().size()))
+                .limit(count)
+                .collect(Collectors.toList());
     }
 }

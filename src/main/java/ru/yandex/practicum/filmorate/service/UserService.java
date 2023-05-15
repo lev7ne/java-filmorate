@@ -6,7 +6,9 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -35,18 +37,43 @@ public class UserService {
     }
 
     public User addFriend(Integer id, Integer friendId) {
-        return userStorage.addFriend(id, friendId);
+        User anyUser1 = getUserById(id);
+        User anyUser2 = getUserById(friendId);
+        anyUser1.getFriends().add(anyUser2.getId());
+        anyUser2.getFriends().add(anyUser1.getId());
+        userStorage.updateUser(anyUser1);
+        userStorage.updateUser(anyUser2);
+        return anyUser1;
     }
 
     public User deleteFriend(Integer id, Integer friendId) {
-        return userStorage.deleteFriend(id, friendId);
+        User anyUser1 = getUserById(id);
+        User anyUser2 = getUserById(friendId);
+        anyUser1.getFriends().remove(anyUser2.getId());
+        anyUser2.getFriends().remove(anyUser1.getId());
+        userStorage.updateUser(anyUser1);
+        userStorage.updateUser(anyUser2);
+        return anyUser1;
     }
 
     public Collection<User> getAllFriends(Integer id) {
-        return userStorage.getAllFriends(id);
+        User anyUser = getUserById(id);
+        List<User> userFriendsList = new ArrayList<>();
+        for (Integer elem : anyUser.getFriends()) {
+            userFriendsList.add(getUserById(elem));
+        }
+        return userFriendsList;
     }
 
     public Collection<User> getCommonFriends(Integer id, Integer otherId) {
-        return userStorage.getCommonFriends(id, otherId);
+        User anyUser1 = getUserById(id);
+        User anyUser2 = getUserById(otherId);
+        List<User> userCommonFriendsList = new ArrayList<>();
+        for (Integer elem : anyUser1.getFriends()) {
+            if (anyUser2.getFriends().contains(elem)) {
+                userCommonFriendsList.add(getUserById(elem));
+            }
+        }
+        return userCommonFriendsList;
     }
 }

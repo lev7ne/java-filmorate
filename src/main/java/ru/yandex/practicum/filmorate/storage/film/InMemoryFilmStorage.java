@@ -7,13 +7,10 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Counter;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Validator;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -21,11 +18,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     private final Counter counter = new Counter();
     private final Map<Integer, Film> films = new HashMap<>();
     private final Validator validator;
-    private final UserStorage userStorage;
 
     @Autowired
-    public InMemoryFilmStorage(UserStorage userStorage, Validator validator) {
-        this.userStorage = userStorage;
+    public InMemoryFilmStorage(Validator validator) {
         this.validator = validator;
     }
 
@@ -59,31 +54,5 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Collection<Film> getFilms() {
         return films.values();
-    }
-
-    @Override
-    public Film addLike(Integer filmId, Integer userId) {
-        Film anyFilm = getFilmById(filmId);
-        userStorage.getUserById(userId);
-        anyFilm.getLikes().add(userId);
-        films.put(anyFilm.getId(), anyFilm);
-        return anyFilm;
-    }
-
-    @Override
-    public Film deleteLike(Integer filmId, Integer userId) {
-        Film anyFilm = getFilmById(filmId);
-        userStorage.getUserById(userId);
-        anyFilm.getLikes().remove(userId);
-        films.put(anyFilm.getId(), anyFilm);
-        return anyFilm;
-    }
-
-    @Override
-    public List<Film> returnMostLikedFilms(int count) {
-        return getFilms().stream()
-                .sorted((o1, o2) -> Integer.compare(o2.getLikes().size(), o1.getLikes().size()))
-                .limit(count)
-                .collect(Collectors.toList());
     }
 }
