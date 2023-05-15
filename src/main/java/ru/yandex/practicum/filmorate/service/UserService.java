@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.Validator;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.ArrayList;
@@ -14,17 +15,21 @@ import java.util.List;
 @Service
 public class UserService {
     private final UserStorage userStorage;
+    private final Validator validator;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
+    public UserService(UserStorage userStorage, Validator validator) {
         this.userStorage = userStorage;
+        this.validator = validator;
     }
 
     public User createUser(User user) {
+        validator.validateUser(user);
         return userStorage.createUser(user);
     }
 
     public User updateUser(User user) {
+        validator.validateUser(user);
         return userStorage.updateUser(user);
     }
 

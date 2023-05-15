@@ -19,9 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FilmControllerTest {
     Validator validator = new Validator();
-    UserStorage userStorage = new InMemoryUserStorage(validator);
-    FilmStorage filmStorage = new InMemoryFilmStorage(validator);
-    FilmService filmService = new FilmService(filmStorage, userStorage);
+    UserStorage userStorage = new InMemoryUserStorage();
+    FilmStorage filmStorage = new InMemoryFilmStorage();
+    FilmService filmService = new FilmService(filmStorage, userStorage, validator);
     FilmController filmController = new FilmController(filmService);
 
     @DisplayName("Проверка валидации фильма")

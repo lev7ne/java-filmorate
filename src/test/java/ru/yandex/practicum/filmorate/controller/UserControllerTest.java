@@ -18,8 +18,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class UserControllerTest {
     Validator validator = new Validator();
-    UserStorage userStorage = new InMemoryUserStorage(validator);
-    UserService userService = new UserService(userStorage);
+    UserStorage userStorage = new InMemoryUserStorage();
+    UserService userService = new UserService(userStorage, validator);
     UserController userController = new UserController(userService);
 
     @DisplayName("Проверка валидации пользователя")
