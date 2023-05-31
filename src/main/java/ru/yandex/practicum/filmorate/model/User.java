@@ -25,5 +25,5 @@ public class User {
     private String name;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthday;
-    private Set<Integer> friends = new HashSet<>();
+    private Set<Integer> friends = new HashSet<>(); // HashMap ? 1, true
 }
