@@ -3,65 +3,58 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.FilmDao;
+import ru.yandex.practicum.filmorate.dao.LikeDao;
+import ru.yandex.practicum.filmorate.dao.UserDao;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Validator;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class FilmService {
-    private final FilmStorage filmStorage;
-    private final UserStorage userStorage;
+    private final FilmDao filmDao;
+    private final LikeDao likeDao;
+    private final UserDao userDao;
     private final Validator validator;
 
     @Autowired
-    public FilmService(FilmStorage filmStorage, UserStorage userStorage, Validator validator) {
-        this.filmStorage = filmStorage;
-        this.userStorage = userStorage;
+    public FilmService(FilmDao filmDao, LikeDao likeDao, UserDao userDao, Validator validator) {
+        this.filmDao = filmDao;
+        this.likeDao = likeDao;
+        this.userDao = userDao;
         this.validator = validator;
     }
 
     public Film createFilm(Film film) {
         validator.validateFilm(film);
-        return filmStorage.createFilm(film);
+        return filmDao.create(film);
     }
 
     public Film updateFilm(Film film) {
         validator.validateFilm(film);
-        return filmStorage.updateFilm(film);
+        return filmDao.update(film);
     }
 
     public Film getFilmById(Integer id) {
-        return filmStorage.getFilmById(id);
+        return filmDao.getById(id);
     }
 
     public Collection<Film> getFilms() {
-        return filmStorage.getFilms();
+        return filmDao.getAll();
     }
 
-    public Film addLike(Integer filmId, Integer userId) {
-        Film anyFilm = getFilmById(filmId);
-        userStorage.getUserById(userId);
-        anyFilm.getLikes().add(userId);
-        return filmStorage.updateFilm(anyFilm);
+    public void addLike(Integer filmId, Integer userId) {
+        likeDao.addLike(filmId, userId);
     }
 
-    public Film deleteLike(Integer filmId, Integer userId) {
-        Film anyFilm = getFilmById(filmId);
-        userStorage.getUserById(userId);
-        anyFilm.getLikes().remove(userId);
-        return filmStorage.updateFilm(anyFilm);
+    public void deleteLike(Integer filmId, Integer userId) {
+        userDao.getById(userId);
+        likeDao.deleteLike(filmId, userId);
     }
 
-    public List<Film> returnMostLikedFilms(int count) {
-        return getFilms().stream()
-                .sorted((o1, o2) -> Integer.compare(o2.getLikes().size(), o1.getLikes().size()))
-                .limit(count)
-                .collect(Collectors.toList());
+    public Collection<Film> getPopular(int count) {
+        return filmDao.getPopular(count);
     }
 }

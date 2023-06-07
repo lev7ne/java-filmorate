@@ -1,14 +1,15 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
 @Data
 @Builder
@@ -16,14 +17,17 @@ import java.util.Set;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class User {
+    @Id
+    @GeneratedValue
     private Integer id;
-    @Email
-    private String email;
+    @JsonProperty("name")
+    private String userName;
     @NotBlank
     @NotNull
     private String login;
-    private String name;
+    @Email
+    private String email;
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate birthday;
-    private Set<Integer> friends = new HashSet<>(); // HashMap ? 1, true
+
 }
