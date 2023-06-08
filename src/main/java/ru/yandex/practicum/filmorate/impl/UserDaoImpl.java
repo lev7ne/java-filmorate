@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.dao.UserDao;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.mapper.Mapper;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
@@ -13,6 +14,11 @@ import java.util.List;
 @Component
 public class UserDaoImpl implements UserDao {
     private final JdbcTemplate jdbcTemplate;
+    private final String insertUserQuery = "INSERT INTO USERS (USER_NAME, LOGIN, EMAIL, BIRTHDAY) VALUES (?, ?, ?, ?)";
+    private final String updateUserQuery = "UPDATE users SET USER_NAME = ?, LOGIN = ?, EMAIL = ?, BIRTHDAY = ? " +
+            "                               WHERE USER_ID = ?";
+    private final String selectUserQuery = "SELECT * " +
+            "                               FROM USERS";
 
     @Autowired
     public UserDaoImpl(JdbcTemplate jdbcTemplate) {
@@ -21,49 +27,35 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User create(User user) {
-        jdbcTemplate.update("INSERT INTO USERS (USER_NAME, LOGIN, EMAIL, BIRTHDAY) VALUES (?, ?, ?, ?)",
-                user.getUserName(), user.getLogin(), user.getEmail(), user.getBirthday());
-        return jdbcTemplate.query("SELECT * FROM USERS WHERE LOGIN = ?", (rs, rowNum) -> new User(
-                rs.getInt(1),
-                rs.getString(2),
-                rs.getString(3),
-                rs.getString(4),
-                rs.getDate(5).toLocalDate()), user.getLogin()).get(0);
+        jdbcTemplate.update(insertUserQuery, user.getUserName(), user.getLogin(), user.getEmail(), user.getBirthday());
+        return jdbcTemplate.query(selectUserQuery + " WHERE LOGIN = ?", Mapper::makeUser, user.getLogin()).get(0);
     }
 
     @Override
     public User update(User user) {
-        int ok = jdbcTemplate.update("UPDATE users SET USER_NAME = ?, LOGIN = ?, EMAIL = ?, BIRTHDAY = ? WHERE USER_ID = ?",
-                user.getUserName(), user.getLogin(), user.getEmail(), user.getBirthday(), user.getId());
-        if (ok == 0) {
+        int response = jdbcTemplate.update(updateUserQuery, user.getUserName(), user.getLogin(), user.getEmail(), user.getBirthday(), user.getId());
+
+        if (response == 0) {
             throw new NotFoundException();
         }
+
         return getById(user.getId());
 
     }
 
     @Override
     public User getById(Integer id) {
-        List<User> users = jdbcTemplate.query("SELECT * FROM users WHERE USER_ID = ?", (rs1, rowNum1) -> new User(
-                rs1.getInt(1),
-                rs1.getString(2),
-                rs1.getString(3),
-                rs1.getString(4),
-                rs1.getDate(5).toLocalDate()), id);
+        List<User> users = jdbcTemplate.query(selectUserQuery + " WHERE USER_ID = ?", Mapper::makeUser, id);
+
         if (users.isEmpty()) {
             throw new NotFoundException();
         }
+
         return users.get(0);
     }
 
     @Override
     public Collection<User> getAll() {
-        return jdbcTemplate.query("SELECT * FROM USERS", (rs, rowNum) -> new User(
-                rs.getInt(1),
-                rs.getString(2),
-                rs.getString(3),
-                rs.getString(4),
-                rs.getDate(5).toLocalDate()
-        ));
+        return jdbcTemplate.query(selectUserQuery, Mapper::makeUser);
     }
 }

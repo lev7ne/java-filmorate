@@ -2,11 +2,7 @@ package ru.yandex.practicum.filmorate.dao;
 
 import java.util.Collection;
 
-public interface Dao<T> {
-    T create(T entity);
-
-    T update(T entity);
-
+public interface Receivable<T> {
     T getById(Integer id);
 
     Collection<T> getAll();

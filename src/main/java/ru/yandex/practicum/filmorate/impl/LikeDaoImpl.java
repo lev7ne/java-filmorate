@@ -16,14 +16,15 @@ public class LikeDaoImpl implements LikeDao {
     }
 
     @Override
-    public void addLike(Integer filmId, Integer userId) {
+    public void add(Integer filmId, Integer userId) {
         jdbcTemplate.update("INSERT INTO LIKES (FILM_ID, USER_ID) VALUES (?, ?)",
                 filmId, userId);
     }
 
     @Override
-    public void deleteLike(Integer filmId, Integer userId) {
-        jdbcTemplate.update("DELETE FROM LIKES WHERE FILM_ID = ? AND USER_ID = ?",
+    public void delete(Integer filmId, Integer userId) {
+        jdbcTemplate.update("DELETE FROM LIKES " +
+                        "        WHERE FILM_ID = ? AND USER_ID = ?",
                 filmId, userId);
     }
 }

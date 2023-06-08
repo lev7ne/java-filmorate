@@ -1,9 +1,10 @@
 package ru.yandex.practicum.filmorate.dao;
 
-public interface LikeDao {
+import org.springframework.data.relational.core.sql.Like;
 
-    void addLike(Integer filmId, Integer userId);
+public interface LikeDao extends Addable<Like> {
 
-    void deleteLike(Integer filmId, Integer userId);
+    void add(Integer filmId, Integer userId);
 
+    void delete(Integer filmId, Integer userId);
 }

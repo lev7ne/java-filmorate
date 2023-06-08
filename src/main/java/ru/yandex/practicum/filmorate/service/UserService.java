@@ -44,11 +44,11 @@ public class UserService {
 
     public void addFriend(Integer id, Integer friendId) {
         getUserById(friendId);
-        friendshipDao.addFriend(id, friendId);
+        friendshipDao.add(id, friendId);
     }
 
     public void deleteFriend(Integer id, Integer friendId) { // работает
-        friendshipDao.deleteFriend(id, friendId);
+        friendshipDao.delete(id, friendId);
     }
 
     public Collection<User> getFriendship(Integer id) {

@@ -46,12 +46,12 @@ public class FilmService {
     }
 
     public void addLike(Integer filmId, Integer userId) {
-        likeDao.addLike(filmId, userId);
+        likeDao.add(filmId, userId);
     }
 
     public void deleteLike(Integer filmId, Integer userId) {
         userDao.getById(userId);
-        likeDao.deleteLike(filmId, userId);
+        likeDao.delete(filmId, userId);
     }
 
     public Collection<Film> getPopular(int count) {
