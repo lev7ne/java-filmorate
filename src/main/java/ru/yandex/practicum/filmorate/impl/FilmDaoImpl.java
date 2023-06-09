@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.impl;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -10,14 +11,15 @@ import ru.yandex.practicum.filmorate.mapper.Mapper;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.FilmGenre;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 public class FilmDaoImpl implements FilmDao {
 
     private final JdbcTemplate jdbcTemplate;
-    private final String selectFilmGenreQuery = "SELECT DISTINCT FILM_GENRES.FILM_ID, G.GENRE_NAME, FILM_GENRES.GENRE_ID" +
+    private final String selectFilmGenreQuery = "SELECT FILM_GENRES.FILM_ID, G.GENRE_NAME, FILM_GENRES.GENRE_ID" +
             "                                    FROM FILM_GENRES" +
             "                                    LEFT JOIN GENRES G on FILM_GENRES.GENRE_ID = G.GENRE_ID";
     private final String selectFilmQuery = "SELECT FILMS.FILM_ID, FILM_NAME, DESCRIPTION, RELEASE_DATE, DURATION, FILMS.RATING_ID, R.RATING_NAME" +
@@ -42,7 +44,7 @@ public class FilmDaoImpl implements FilmDao {
                     anyFilm.getId(), genre.getId());
         }
 
-        List<FilmGenre> genres = jdbcTemplate.query("SELECT DISTINCT FILM_GENRES.FILM_ID, G.GENRE_NAME, FILM_GENRES.GENRE_ID" +
+        List<FilmGenre> genres = jdbcTemplate.query("SELECT FILM_GENRES.FILM_ID, G.GENRE_NAME, FILM_GENRES.GENRE_ID" +
                         "                                FROM FILM_GENRES" +
                         "                                LEFT JOIN GENRES G on FILM_GENRES.GENRE_ID = G.GENRE_ID" +
                         "                                WHERE FILM_ID = ?" +
@@ -65,9 +67,14 @@ public class FilmDaoImpl implements FilmDao {
 
         jdbcTemplate.update("DELETE FROM FILM_GENRES WHERE FILM_ID = ?", film.getId());
 
+
         for (FilmGenre genre : film.getGenres()) {
-            jdbcTemplate.update("INSERT INTO FILM_GENRES (FILM_ID, GENRE_ID) VALUES (?, ?)",
-                    film.getId(), genre.getId());
+            try {
+                jdbcTemplate.update("INSERT INTO FILM_GENRES (FILM_ID, GENRE_ID) VALUES (?, ?)",
+                        film.getId(), genre.getId());
+            } catch (Exception e) {
+                log.error("Не удалось вставить запись.");
+            }
         }
 
         return getById(film.getId());
@@ -117,25 +124,24 @@ public class FilmDaoImpl implements FilmDao {
         List<Film> films = jdbcTemplate.query("SELECT FILMS.FILM_ID, FILM_NAME, DESCRIPTION, RELEASE_DATE, DURATION, FILMS.RATING_ID, R.RATING_NAME" +
                         "                          FROM FILMS" +
                         "                          LEFT JOIN RATINGS R on R.RATING_ID = FILMS.RATING_ID" +
-                        "                          WHERE FILMS.FILM_ID IN (SELECT FILM_ID" +
-                        "                                                  FROM LIKES" +
-                        "                                                  GROUP BY FILM_ID" +
-                        "                                                  ORDER BY COUNT(USER_ID) DESC" +
-                        "                                                  LIMIT ?)",
+                        "                          LEFT JOIN LIKES L on FILMS.FILM_ID = L.FILM_ID" +
+                        "                          GROUP BY FILMS.FILM_ID" +
+                        "                          ORDER BY COUNT(USER_ID) DESC" +
+                        "                          LIMIT ?",
                 Mapper::makeFilm, count);
 
         if (films.isEmpty()) {
             return getAll();
         }
 
-        List<FilmGenre> genres = jdbcTemplate.query(selectFilmGenreQuery, Mapper::makeFilmGenre);
+        List<FilmGenre> genres = jdbcTemplate.query(selectFilmGenreQuery +
+                        " WHERE FILM_GENRES.FILM_ID IN (" + String.join(",", Collections.nCopies(films.size(), "?")) + ")",
+                Mapper::makeFilmGenre, films.stream().map(Film::getId).toArray());
+
+        Map<Integer, List<FilmGenre>> genresMap = genres.stream().collect(Collectors.groupingBy(FilmGenre::getFilmId));
 
         for (Film film : films) {
-            for (FilmGenre filmGenre : genres) {
-                if (film.getId() == filmGenre.getFilmId()) {
-                    film.getGenres().add(filmGenre);
-                }
-            }
+            film.setGenres(genresMap.getOrDefault(film.getId(), new ArrayList<>()));
         }
 
         return films;
