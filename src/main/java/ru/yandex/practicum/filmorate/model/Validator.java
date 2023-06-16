@@ -27,9 +27,9 @@ public class Validator {
             log.warn("Попытка добавить пользователя с датой рождения в будущем.");
             throw new ValidationException("Попытка добавить пользователя с датой рождения в будущем: " + user.getBirthday());
         }
-        if (user.getName() == null || user.getName().isBlank()) {
+        if (user.getUserName() == null || user.getUserName().isBlank()) {
             log.warn("Имя пользователя подставлено из логина: {}", user.getLogin());
-            user.setName(user.getLogin());
+            user.setUserName(user.getLogin());
         }
     }
 }
